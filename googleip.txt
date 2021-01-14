@@ -1,0 +1,25 @@
+#!/bin/bash
+wget https://www.gstatic.com/ipranges/goog.json -O /root/googleip
+rm /root/new_google_ip.txt -rf
+cat /root/googleip |  sed 's/\"//g' | sed 's/[[:space:]]//g' |tr ' ' '\n' | grep 'ipv4Prefix:' >> /root/new_google_ip.txt
+variable=$(diff /root/curr_google_ip.txt /root/new_google_ip.txt)
+currip=/root/curr_google_ip.txt
+newip=/root/new_google_ip.txt
+
+
+variable=$(diff /root/curr_google_ip.txt /root/new_google_ip.txt)
+currip=/root/curr_google_ip.txt
+newip=/root/new_google_ip.txt
+
+#if [[ $variable -eq 0 ]]
+if [[ "$variable" == "" ]]
+then
+#  echo $"nothing"
+  (echo "No Change"; echo -e "currip:"; cat "$currip") |  /root/email/sendEmail -f xxx@xxx.com  -s x.x.x.x -t support@xxx.com  -u "Google IP Check - No Change"
+
+else
+  (echo -e "diff:"; echo -n "$variable"; echo -e "\n";  echo -e "oldip:"; cat "$currip"; echo -e "\nnewip:"; cat "$newip") |  /root/email/sendEmail -f xxx@xxx.com  -s x.x.x.x -t support@xxx.com  -u "Google IP Check"
+  rm /root/curr_google_ip.txt
+  cp /root/new_google_ip.txt /root/curr_google_ip.txt
+
+fi
